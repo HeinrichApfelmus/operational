@@ -30,13 +30,10 @@ extra-source-files: CHANGELOG
                     docs/examples/*.lhs
                     docs/web/fptools.css
                     docs/web/*.html
-                    docs/web/examples/hscolour.css
-                    docs/web/examples/*.hs.html
-                    docs/web/examples/*.lhs.html
                     
 source-repository head
-    type:           darcs
-    location:       http://code.haskell.org/operational
+    type:           git
+    location:       git://github.com/HeinrichApfelmus/operational.git
 
 Library
     hs-source-dirs:     src
