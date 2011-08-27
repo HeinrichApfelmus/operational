@@ -1,0 +1,54 @@
+Name:               operational
+Version:            0.2.0.3
+Synopsis:           Implement monads by specifying operational semantics.
+Description:
+  Tiny library for implementing monads by specifying the primitive instructions
+  and their operational semantics. The monad laws will hold automatically.
+  Can also be used to define monad transformers,
+  and the lifting laws are, again, automatic.
+  .
+  Accompanies the article: \"The Operational Monad Tutorial\",
+  published in Issue 15 of The Monad.Reader <http://themonadreader.wordpress.com/2010/01/26/issue-15/>.
+  .
+  Related packages: MonadPrompt <http://hackage.haskell.org/package/MonadPrompt>.
+  
+Category:           Control, Monads
+License:            BSD3
+License-file:       LICENSE
+Author:             Heinrich Apfelmus
+Maintainer:         Heinrich Apfelmus <apfelmus quantentunnel de>
+Copyright:          (c) Heinrich Apfelmus 2010-2011
+Homepage:           http://haskell.org/haskellwiki/Operational
+Stability:          Provisional
+
+build-type:         Simple
+cabal-version:      >= 1.6
+extra-source-files: CHANGELOG
+                    docs/Documentation.md
+                    docs/Makefile
+                    docs/examples/*.hs
+                    docs/examples/*.lhs
+                    docs/web/fptools.css
+                    docs/web/*.html
+                    docs/web/examples/hscolour.css
+                    docs/web/examples/*.hs.html
+                    docs/web/examples/*.lhs.html
+                    
+source-repository head
+    type:           darcs
+    location:       http://code.haskell.org/operational
+
+Library
+    hs-source-dirs:     src
+    build-depends:      base == 4.* , mtl >= 1.1 && < 2.1.0
+    ghc-options:        -Wall
+    extensions:         GADTs, UndecidableInstances,
+                        MultiParamTypeClasses, FlexibleInstances
+    exposed-modules:    Control.Monad.Operational
+
+Executable TicTacToe
+    main-is:            docs/examples/TicTacToe.hs
+    hs-source-dirs:     src, .
+    build-depends:      random == 1.*
+    other-modules:      Control.Monad.Operational
+

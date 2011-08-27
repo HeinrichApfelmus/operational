@@ -1,0 +1,15 @@
+Changelog
+---------
+
+operational - 0.2.0.0
+
+* changed name of view type to `ProgramView`
+* added instances for  mtl  classes
+* new function `liftProgram` to embed `Program` in `ProgramT`
+
+* new example  TicTacToe.hs
+* various documentation updates
+
+operational - 0.1.0.0
+
+* initial release
