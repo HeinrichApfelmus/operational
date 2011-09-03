@@ -43,7 +43,7 @@ Library
     exposed-modules:    Control.Monad.Operational
 
 Executable TicTacToe
-    main-is:            docs/examples/TicTacToe.hs
+    main-is:            doc/examples/TicTacToe.hs
     hs-source-dirs:     src, .
     build-depends:      random == 1.*
     other-modules:      Control.Monad.Operational
