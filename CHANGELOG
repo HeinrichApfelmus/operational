@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+operational - 0.2.0.3
+
+* moved project repository to github
+
 operational - 0.2.0.0
 
 * changed name of view type to `ProgramView`
