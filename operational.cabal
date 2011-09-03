@@ -24,12 +24,11 @@ Stability:          Provisional
 build-type:         Simple
 cabal-version:      >= 1.6
 extra-source-files: CHANGELOG
-                    docs/Documentation.md
-                    docs/Makefile
-                    docs/examples/*.hs
-                    docs/examples/*.lhs
-                    docs/web/fptools.css
-                    docs/web/*.html
+                    doc/Documentation.md
+                    doc/examples/*.hs
+                    doc/examples/*.lhs
+                    doc/web/fptools.css
+                    doc/web/Documentation.html
                     
 source-repository head
     type:           git

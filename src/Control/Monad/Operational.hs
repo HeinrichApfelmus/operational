@@ -5,7 +5,7 @@
 
 This package is based on the \"The Operational Monad Tutorial\", published in Issue 15 of The Monad.Reader <http://themonadreader.wordpress.com/>.
 
-You are reading the API reference. For more thorough documentation including design and implementation notes as well as a correctness proof, please consult the included documentation in @doc\/Documentation.md@, also available at <http://projects.haskell.org/operational/Documentation.html> .
+You are reading the API reference. For more thorough documentation including design and implementation notes as well as a correctness proof, please consult the included documentation in @doc\/Documentation.md@, also available at <http://heinrichapfelmus.github.com/operational/Documentation.html> .
 
 This API reference includes only basic example code. More intricate examples are available in the @doc\/examples@ directory, also available at <https://github.com/HeinrichApfelmus/operational/tree/master/doc/examples#readme>.
 -}

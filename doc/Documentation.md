@@ -129,7 +129,7 @@ and the error monad
 
 The "sum of signatures" approach and the `(:+:)` type constructor are advocated in [Wouter Swierstra's "Data Types a la carte"][a la carte]. Time will tell which has more merit; for now I have opted for a seamless interaction with monad transformers.
 
-  [a la carte]: http://www.cse.chalmers.se/~wouter/Publications/DataTypesALaCarte.pdf "Wouter Swierstra. Data types ˆ la carte."
+  [a la carte]: http://www.cse.chalmers.se/~wouter/Publications/DataTypesALaCarte.pdf "Wouter Swierstra. Data types Ã  la carte."
 
 
 Design and Implementation
