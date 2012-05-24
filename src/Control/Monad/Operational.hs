@@ -44,12 +44,12 @@ import Control.Monad.State.Class
     @'Program' instr@ is always a monad and
     automatically obeys the monad laws.
 -}
-type Program instr a = ProgramT instr Identity a
+type Program instr = ProgramT instr Identity
 
 -- | View type for inspecting the first instruction.
 --   It has two constructors 'Return' and @:>>=@.
 --   (For technical reasons, they are documented at 'ProgramViewT'.)
-type ProgramView instr a  = ProgramViewT instr Identity a
+type ProgramView instr  = ProgramViewT instr Identity
 
 -- | View function for inspecting the first instruction.
 view :: Program instr a -> ProgramView instr a
