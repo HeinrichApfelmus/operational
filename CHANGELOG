@@ -1,6 +1,9 @@
 Changelog
 ---------
 
+operational - 0.2.1.0
+* minor change: eta-reduce `Program` and `ProgramView` type synonyms
+
 operational - 0.2.0.3
 
 * moved project repository to github

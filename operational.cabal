@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.0.3
+Version:            0.2.1.0
 Synopsis:           Implement monads by specifying operational semantics.
 Description:
   Tiny library for implementing monads by specifying the primitive instructions
