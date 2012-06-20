@@ -1,16 +1,14 @@
 {-# LANGUAGE GADTs, UndecidableInstances, MultiParamTypeClasses, FlexibleInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 
-{-| Implement monads by specifying primitive instructions and their operational semantics.
-
-This package is based on the \"The Operational Monad Tutorial\", published in Issue 15 of The Monad.Reader <http://themonadreader.wordpress.com/>.
-
-You are reading the API reference. For more thorough documentation including design and implementation notes as well as a correctness proof, please consult the included documentation in @doc\/Documentation.md@, also available at <http://heinrichapfelmus.github.com/operational/Documentation.html> .
-
-This API reference includes only basic example code. More intricate examples are available in the @doc\/examples@ directory, also available at <https://github.com/HeinrichApfelmus/operational/tree/master/doc/examples#readme>.
--}
 module Control.Monad.Operational (
-    -- * Basic usage
+    -- * Synopsis
+    -- $synopsis
+    
+    -- * Overview
+    -- $intro
+    
+    -- * Monad
     Program, singleton, ProgramView, view,
     -- $example
     
@@ -33,11 +31,85 @@ import Control.Monad.State.Class
 -- import Control.Monad.Writer.Class
 
 {------------------------------------------------------------------------------
+    Introduction
+------------------------------------------------------------------------------}
+{-$synopsis
+To write a monad, use the 'Program' type.
+
+To write a monad transformer, use the 'ProgramT' type.
+
+For easier interoperability,
+the 'Program' type is actually a type synonym
+and defined in terms of 'ProgramT'.
+-}
+
+{-$intro
+
+The basic idea for implementing monads with this libary
+is to think of monads as /sequences of primitive instructions/.
+For instance, imagine that you want to write a web application
+with a custom monad that features an instruction
+
+> askUserInput :: CustomMonad UserInput
+
+which sends a form to the remote user and waits for the user
+to send back his input
+
+To implement this monad, you decide that this instruction is
+a primitive, i.e. should not be implemented in terms of other,
+more basic instructions.
+Once you have chosen your primitives, collect them in a data type
+
+@
+data CustomMonadInstruction a where
+    AskUserInput :: CustomMonadInstruction UserInput
+@
+
+Then, obtain your custom monad simply by applying the 'Program'
+type constructor
+
+> type CustomMonad a = Program CustomMonadInstruction a
+
+The library makes sure that it is an instance of the 'Monad' class
+and fulfills all the required laws.
+
+Essentially, the monad you now obtained is just a
+fancy list of primitive instructions.
+In particular, you can pattern match on the first element of this "list".
+This is how you implement an @interpret@ or @run@ function for your monad.
+Note that pattern matching is done using the 'view' function
+
+@
+runCustomMonad :: CustomMonad a -> IO a
+runCustomMonad m = case view m of
+    Return a            -> ...  -- done, return a result
+    AskUserInput :>>= k -> ...  -- askUserInput instruction, continue with k
+@
+
+The point is that you can now proceed in any way you like:
+you can wait for the user to return input,
+or you store the continuation @k@ and retrieve it when
+your web application receives another HTTP request,
+or you can keep a log of all user inputs on the client side an replay them,
+and so on.
+In essence, your custom monad allows you to express
+your web application as a simple imperative program,
+while the underlying implementation maps this to
+an event-drived model or some other control flow architecture.
+
+The possibilities are endless.
+More usage examples can be found here:
+<https://github.com/HeinrichApfelmus/operational/tree/master/doc/examples#readme>
+
+-}
+
+{------------------------------------------------------------------------------
    Program
 ------------------------------------------------------------------------------}
-{-| The abstract data type 'Program instr a' represents programs.
+{-| The abstract data type @'Program' instr a@ represents programs,
+    i.e. sequences of primitive instructions.
 
-    * The type constructor @instr :: * -> *@ indexes the primitive instructions.
+    * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
     
     * @a@ is the return type of a program.
     
@@ -88,9 +160,11 @@ Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is manda
 {------------------------------------------------------------------------------
     ProgramT - monad transformer
 ------------------------------------------------------------------------------}
-{-| The abstract data type @'ProgramT' instr m a@ represents programs.
+{-| The abstract data type @'ProgramT' instr m a@ represents programs
+    over a base monad @m@,
+    i.e. sequences of primitive instructions and actions from the base monad.
 
-    * The type constructor @instr :: * -> *@ indexes the primitive instructions.
+    * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
     
     * @m@ is the base monad, embedded with 'lift'.
 

@@ -1,17 +1,16 @@
 Name:               operational
-Version:            0.2.1.0
-Synopsis:           Implement monads by specifying operational semantics.
+Version:            0.2.1.1
+Synopsis:           Implementation of difficult monads made easy
+                    with operational semantics.
 Description:
-  Tiny library for implementing monads by specifying the primitive instructions
-  and their operational semantics. The monad laws will hold automatically.
-  Can also be used to define monad transformers,
-  and the lifting laws are, again, automatic.
+  This library makes it easy to implement monads with tricky control flow.
   .
-  Accompanies the article: \"The Operational Monad Tutorial\",
-  published in Issue 15 of The Monad.Reader <http://themonadreader.wordpress.com/2010/01/26/issue-15/>.
+  This is useful for: writing web applications in a sequential style, programming games with a uniform interface for human and AI players and easy replay capababilities, implementing fast parser monads, designing monadic DSLs, etc.
+  .
+  See the project homepage <http://haskell.org/haskellwiki/Operational> for a more detailed introduction and features.
   .
   Related packages: MonadPrompt <http://hackage.haskell.org/package/MonadPrompt>.
-  
+
 Category:           Control, Monads
 License:            BSD3
 License-file:       LICENSE
