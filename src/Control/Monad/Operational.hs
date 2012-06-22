@@ -13,8 +13,9 @@ module Control.Monad.Operational (
     -- $example
     
     -- * Monad transformer
-    ProgramT, ProgramViewT(..), viewT, liftProgram
+    ProgramT, ProgramViewT(..), viewT,
     -- $exampleT
+    liftProgram,
     
     ) where
 
@@ -82,20 +83,26 @@ Note that pattern matching is done using the 'view' function
 @
 runCustomMonad :: CustomMonad a -> IO a
 runCustomMonad m = case view m of
-    Return a            -> ...  -- done, return a result
-    AskUserInput :>>= k -> ...  -- askUserInput instruction, continue with k
+    Return a            -> return a -- done, return the result
+    AskUserInput :>>= k -> do
+        b <- waitForUserInput       -- wait for external user input
+        runCustomMonad (k b)        -- proceed with next instruction
 @
 
 The point is that you can now proceed in any way you like:
-you can wait for the user to return input,
+you can wait for the user to return input as shown,
 or you store the continuation @k@ and retrieve it when
 your web application receives another HTTP request,
 or you can keep a log of all user inputs on the client side an replay them,
-and so on.
+and so on. Moreover, you can implement different @run@ functions
+for one and the same custom monad, which is useful for testing.
+Also not that the result of the @run@ function does not need to be a monad at all.
+
 In essence, your custom monad allows you to express
 your web application as a simple imperative program,
-while the underlying implementation maps this to
-an event-drived model or some other control flow architecture.
+while the underlying implementation can freely map this to
+an event-drived model or some other control flow architecture
+of your choice.
 
 The possibilities are endless.
 More usage examples can be found here:
@@ -141,6 +148,7 @@ Stack machine from \"The Operational Monad Tutorial\".
 
 @
     type StackProgram a = Program StackInstruction a
+    type Stack b        = [b]
 @
 
 @
@@ -199,9 +207,18 @@ singleton :: instr a -> ProgramT instr m a
 singleton = Instr
 
 -- | View type for inspecting the first instruction.
+-- This is very similar to pattern matching on lists.
+--
+-- * The case @(Return a)@ means that the program contains no instructions
+-- and just returns the result @a@.
+--
+-- *The case @(someInstruction :>>= k)@ means that the first instruction
+-- is @someInstruction@ and the remaining program is given by the function @k@.
 data ProgramViewT instr m a where
     Return :: a -> ProgramViewT instr m a
-    (:>>=) :: instr b -> (b -> ProgramT instr m a ) -> ProgramViewT instr m a
+    (:>>=) :: instr b
+           -> (b -> ProgramT instr m a)
+           -> ProgramViewT instr m a
 
 -- | View function for inspecting the first instruction.
 viewT :: Monad m => ProgramT instr m a -> m (ProgramViewT instr m a)
@@ -243,11 +260,11 @@ List monad transformer.
         Plus :: ListT m a -> ListT m a -> PlusI m a
 @
 
-@   
+@
     type ListT m a = ProgramT (PlusI m) m a
 @
 
-@   
+@
     runList :: Monad m => ListT m a -> m [a]
     runList = eval <=< viewT
         where
