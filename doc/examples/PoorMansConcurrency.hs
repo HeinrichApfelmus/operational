@@ -3,7 +3,7 @@
     
     Example:
     Koen Claessen's Poor Man's Concurrency Monad
-    http://www.cs.chalmers.se/~koen/pubs/entry-jfp99-monad.html
+    http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.39.8039
 
 ------------------------------------------------------------------------------}
 {-# LANGUAGE GADTs, Rank2Types #-}
@@ -15,7 +15,7 @@ import Control.Monad.Trans hiding (lift)
 
 {------------------------------------------------------------------------------
     A concurrency monad runs several processes in parallel
-    and supports two operations
+    and supports two primitive operations
 
         fork  -- fork a new process
         stop  -- halt the current one
@@ -37,7 +37,7 @@ stop = singleton Stop
 fork = singleton . Fork
 lift = singleton . Lift
 
-    -- interpreter
+-- interpreter
 runProcess :: Monad m => Process m a -> m ()
 runProcess m = schedule [m]
     where
@@ -51,8 +51,8 @@ runProcess m = schedule [m]
     run (Fork p :>>= k) xs = schedule (xs ++ [x2,x1])  -- fork new process
         where x1 = k (); x2 = p >>= k
 
-    -- example
-    --      > runProcess example   -- warning: runs indefinitely
+-- example
+--      > runProcess example   -- warning: runs indefinitely
 example :: Process IO ()
 example = do
         write "Start!"

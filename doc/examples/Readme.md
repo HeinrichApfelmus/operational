@@ -2,6 +2,9 @@ Example Code for the *operational* package
 ==========================================
 
 <dl>
+<dt><a href="examples/BreadthFirstParsing.hs">BreadthFirstParsing.hs</a>
+    <dd>An breadth-first implementation of parser combinators.
+    As this implementation does not back-track, we avoid a common space leak.
 <dt><a href="examples/LogicT.hs">LogicT.hs</a>
     <dd>Oleg Kiselyov's <code>LogicT</code> monad transformer.
 <dt><a href="examples/ListT.hs">ListT.hs</a>
