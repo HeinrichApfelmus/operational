@@ -96,7 +96,8 @@ your web application receives another HTTP request,
 or you can keep a log of all user inputs on the client side an replay them,
 and so on. Moreover, you can implement different @run@ functions
 for one and the same custom monad, which is useful for testing.
-Also not that the result of the @run@ function does not need to be a monad at all.
+Also note that the result type of the @run@ function does not need to
+be a monad at all.
 
 In essence, your custom monad allows you to express
 your web application as a simple imperative program,
