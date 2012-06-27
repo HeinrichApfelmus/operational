@@ -41,6 +41,7 @@ lift = singleton . Lift
 runProcess :: Monad m => Process m a -> m ()
 runProcess m = schedule [m]
     where
+    schedule :: Monad m => [Process m a] -> m ()
     schedule (x:xs) = run (view x) xs
 
     run :: Monad m => ProgramView (ProcessI m) a -> [Process m a] -> m ()
