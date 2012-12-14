@@ -1,4 +1,5 @@
-{-# LANGUAGE GADTs, UndecidableInstances, MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE GADTs, Rank2Types, ScopedTypeVariables #-}
+{-# LANGUAGE UndecidableInstances, MultiParamTypeClasses, FlexibleInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 
 module Control.Monad.Operational (
@@ -11,6 +12,7 @@ module Control.Monad.Operational (
     -- * Monad
     Program, singleton, ProgramView, view,
     -- $example
+    interpretWithMonad,
     
     -- * Monad transformer
     ProgramT, ProgramViewT(..), viewT,
@@ -135,32 +137,43 @@ type ProgramView instr  = ProgramViewT instr Identity
 view :: Program instr a -> ProgramView instr a
 view = runIdentity . viewT
 
+
+-- | Utility function that extends
+-- a given interpretation of instructions as monadic actions
+-- to an interpration of 'Program's as monadic actions.
+--
+-- This function can be useful if you are mainly interested in
+-- mapping a 'Program' to different standard monads, like the state monad.
+-- For implementing a truly custom monad, 
+-- you should write your interpreter directly with 'view' instead.
+interpretWithMonad :: forall instr m b.
+    Monad m => (forall a. instr a -> m a) -> (Program instr b -> m b)
+interpretWithMonad f = eval . view
+    where
+    eval :: forall a. ProgramView instr a -> m a
+    eval (Return a) = return a
+    eval (m :>>= k) = f m >>= interpretWithMonad f . k
+
 {- $example
 
 /Example usage/
 
 Stack machine from \"The Operational Monad Tutorial\".
 
-@
-    data StackInstruction a where
-        Push :: Int -> StackInstruction ()
-        Pop  :: StackInstruction Int
-@
-
-@
-    type StackProgram a = Program StackInstruction a
-    type Stack b        = [b]
-@
-
-@
-    interpret :: StackProgram a -> (Stack Int -> a)
-    interpret = eval . view
-        where
-        eval :: ProgramView StackInstruction a -> (Stack Int -> a)
-        eval (Push a :>>= is) stack     = interpret (is ()) (a:stack)
-        eval (Pop    :>>= is) (a:stack) = interpret (is a ) stack
-        eval (Return a)       stack     = a
-@
+>    data StackInstruction a where
+>        Push :: Int -> StackInstruction ()
+>        Pop  :: StackInstruction Int
+>
+>    type StackProgram a = Program StackInstruction a
+>    type Stack b        = [b]
+>
+>    interpret :: StackProgram a -> (Stack Int -> a)
+>    interpret = eval . view
+>        where
+>        eval :: ProgramView StackInstruction a -> (Stack Int -> a)
+>        eval (Push a :>>= is) stack     = interpret (is ()) (a:stack)
+>        eval (Pop    :>>= is) (a:stack) = interpret (is a ) stack
+>        eval (Return a)       stack     = a
 
 Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is mandatory.
 
@@ -249,32 +262,27 @@ liftProgram (Lift m)     = return (runIdentity m)
 liftProgram (m `Bind` k) = liftProgram m `Bind` (liftProgram . k)
 liftProgram (Instr i)    = Instr i
 
+
 {- $exampleT
 
 /Example usage/
 
 List monad transformer.
 
-@
-    data PlusI m a where
-        Zero :: PlusI m a
-        Plus :: ListT m a -> ListT m a -> PlusI m a
-@
-
-@
-    type ListT m a = ProgramT (PlusI m) m a
-@
-
-@
-    runList :: Monad m => ListT m a -> m [a]
-    runList = eval <=< viewT
-        where
-        eval :: Monad m => ProgramViewT (PlusI m) m a -> m [a]
-        eval (Return x)        = return [x]
-        eval (Zero     :>>= k) = return []
-        eval (Plus m n :>>= k) =
-            liftM2 (++) (runList (m >>= k)) (runList (n >>= k))
-@
+>    data PlusI m a where
+>        Zero :: PlusI m a
+>        Plus :: ListT m a -> ListT m a -> PlusI m a
+>
+>    type ListT m a = ProgramT (PlusI m) m a
+>
+>    runList :: Monad m => ListT m a -> m [a]
+>    runList = eval <=< viewT
+>        where
+>        eval :: Monad m => ProgramViewT (PlusI m) m a -> m [a]
+>        eval (Return x)        = return [x]
+>        eval (Zero     :>>= k) = return []
+>        eval (Plus m n :>>= k) =
+>            liftM2 (++) (runList (m >>= k)) (runList (n >>= k))
 
 Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is mandatory.
 
