@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.2.0
+Version:            0.2.2.1
 Synopsis:           Implementation of difficult monads made easy
                     with operational semantics.
 Description:
@@ -28,7 +28,11 @@ extra-source-files: CHANGELOG
                     doc/examples/*.lhs
                     doc/web/fptools.css
                     doc/web/Documentation.html
-                    
+
+flag buildExamples
+    description: Build example executables.
+    default:     True
+ 
 source-repository head
     type:           git
     location:       git://github.com/HeinrichApfelmus/operational.git
@@ -42,9 +46,13 @@ Library
                         MultiParamTypeClasses, FlexibleInstances
     exposed-modules:    Control.Monad.Operational
 
-Executable TicTacToe
+Executable operational-TicTacToe
+    if flag(buildExamples)
+        build-depends:  random == 1.*
+        cpp-options: -DbuildExamples
+    else
+        buildable: False
     main-is:            doc/examples/TicTacToe.hs
     hs-source-dirs:     src, .
-    build-depends:      random == 1.*
     other-modules:      Control.Monad.Operational
 
