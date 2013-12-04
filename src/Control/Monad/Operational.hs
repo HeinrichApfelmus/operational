@@ -29,7 +29,7 @@ import Control.Applicative
     -- Those commented out cannot be instantiated. For reasons see below.
 -- import Control.Monad.Cont.Class
 -- import Control.Monad.Error.Class
--- import Control.Monad.Reader.Class
+import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 -- import Control.Monad.Writer.Class
 
@@ -293,17 +293,11 @@ Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is manda
     
   * All of these instances need UndecidableInstances,
     because they do not satisfy the coverage condition.
+    Most of the instance in the  mtl  package itself have the same issue.
     
-  * We can only make instances of those classes
-    that do not contain control operators. Control operators are
-    functions like
-    
-        listen :: m a -> m (a,w)
-    
-    that take arguments of type  m a  and cannot be implemented with  lift .
-    
-    See also Conor McBride's remark on haskell-cafe:
-    http://www.haskell.org/pipermail/haskell-cafe/2010-April/076185.html
+  * Lifting algebraic operations is easy,
+    lifting control operations is more elaborate, but sometimes possible.
+    See the design notes in  `doc/design.md`.
 ------------------------------------------------------------------------------}
 instance (MonadState s m) => MonadState s (ProgramT instr m) where
     get = lift get
@@ -312,23 +306,10 @@ instance (MonadState s m) => MonadState s (ProgramT instr m) where
 instance (MonadIO m) => MonadIO (ProgramT instr m) where
     liftIO = lift . liftIO
 
-{- Attempt to lift control operators anyway. WARNING: HERE BE DRAGONS
+instance (MonadReader r m) => MonadReader r (ProgramT instr m) where
+    ask = lift ask
+    
+    local r (Lift m)     = Lift (local r m)
+    local r (m `Bind` k) = local r m `Bind` (local r . k)
+    local r (Instr i)    = Instr i
 
-    -- lift a control operation with a single argument
-    -- Unfortunately, I don't have a specifications in terms of laws yet
-    -- I think it makes use of
-    --   liftControlOp1 f (lift m >>= k) = lift m >>= liftControlOp1 f . k
-    -- and is therefore completely useless.
-liftControlOp1 :: Monad m =>
-    (m a -> m b) -> (ProgramT instr m a -> ProgramT instr m b)
-liftControlOp1 f = join . lift . (eval <=< viewT)
-    where
-    eval :: ProgramViewT instr m a -> m (ProgramT instr m a)
-    eval (Return a) = f (return a)
-    eval (i :>>= k) = i :>>= liftControlOp1 f . k
-
-instance (MonadWriter w m) => MonadWriter w (ProgramT instr m) where
-    tell   = lift . tell
-    listen = liftControlOp1 listen
-    pass   = liftControlOp1 pass
--}

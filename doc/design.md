@@ -1,9 +1,31 @@
-This document discusses miscellaneous design decisions for the `operational` library. This is mainly so that I can still remember them in a couple of years.
+This document discusses miscellaneous design decisions and remarks for the `operational` library. This is mainly so that I can still remember them in a couple of years.
 
+Lifting control operations
+--------------------------
+The monad transformer `ProgramT` can automatically lift operations from the base monad, notably those from `MonadState` and `MonadIO`.
+
+Until recently, I thought that this is restricted to algebraic operations and cannot be done for control operations. (For more on this nomenclature, see a [remark by Conor McBride][conor].) However, it turns that it can actually be done for some control operations as well!
+
+  [conor]: http://www.haskell.org/pipermail/haskell-cafe/2010-April/076185.html
+
+For instance, the `MonadReader` class has a control operation `local`. The point is that it is subject to the following laws
+
+    local :: MonadReader r m => (r -> r) -> m a -> m a
+
+    local r (lift   m) = lift (local r m)
+    local r (return a) = return a
+    local r (m >>=  k) = local r m >>= local r . k
+
+Together with the requirement that the new instructions introduced by `ProgramT` do not interfere with the corresponding effect,
+
+    local r (singleton instr) = singleton instr
+
+these laws specify a unique lifting.
+
+In other words, we can lift control operations whenever they obey laws that relate to `>>=` and `return`.
 
 `mapMonad`
 ----------
-
 Limestraël [has suggested][1] that the module `Control.Monad.Operational` includes a function
 
     mapMonad :: (Monad m, Monad n)
