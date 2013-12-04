@@ -1,4 +1,28 @@
-This document discussion miscellaneous design decisions for the `operational` library.
+This document discusses miscellaneous design decisions for the `operational` library. This is mainly so that I can still remember them in a couple of years.
+
+
+`mapMonad`
+----------
+
+Limestraël [has suggested][1] that the module `Control.Monad.Operational` includes a function
+
+    mapMonad :: (Monad m, Monad n)
+        => (forall a. m a -> n a) -> ProgramT instr m a -> ProgramtT instr n a
+
+which changes the base monad for the `ProgramT` monad transformer. A possible implementation is
+
+    mapMonad f = id' <=< lift . f . viewT
+        where
+        id' :: ProgramViewT instr m a -> ProgramT instr n a
+        id' (Return a) = return a
+        id' (i :>>= k) = singleton i >>= mapMonad f . k
+
+However, for the time being, I have [opted against][1] adding this function because there is no guarantee that the mapping function `forall. m a -> n a` actually preserves the argument.
+
+
+  [1]: http://www.haskell.org/pipermail/haskell-cafe/2010-May/077094.html
+  [2]: http://www.haskell.org/pipermail/haskell-cafe/2010-May/077097.html
+
 
 Recursive type definitions with `Program`
 -----------------------------------------
