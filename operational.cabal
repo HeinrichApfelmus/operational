@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.2.1
+Version:            0.2.3.0
 Synopsis:           Implementation of difficult monads made easy
                     with operational semantics.
 Description:
@@ -16,18 +16,17 @@ License:            BSD3
 License-file:       LICENSE
 Author:             Heinrich Apfelmus
 Maintainer:         Heinrich Apfelmus <apfelmus quantentunnel de>
-Copyright:          (c) Heinrich Apfelmus 2010-2011
+Copyright:          (c) Heinrich Apfelmus 2010-2013
 Homepage:           http://haskell.org/haskellwiki/Operational
 Stability:          Provisional
 
 build-type:         Simple
 cabal-version:      >= 1.6
 extra-source-files: CHANGELOG
-                    doc/Documentation.md
+                    doc/*.md
                     doc/examples/*.hs
                     doc/examples/*.lhs
-                    doc/web/fptools.css
-                    doc/web/Documentation.html
+                    doc/examples/*.md
 
 flag buildExamples
     description: Build example executables.
