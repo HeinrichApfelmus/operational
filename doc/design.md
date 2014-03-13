@@ -29,13 +29,12 @@ In other words, we can lift control operations whenever they obey laws that rela
 Limestraël [has suggested][1] that the module `Control.Monad.Operational` includes a function
 
     mapMonad :: (Monad m, Monad n)
-        => (forall a. m a -> n a) -> ProgramT instr m a -> ProgramtT instr n a
+        => (forall a. m a -> n a) -> ProgramT instr m a -> ProgramT instr n a
 
 which changes the base monad for the `ProgramT` monad transformer. A possible implementation is
 
     mapMonad f = id' <=< lift . f . viewT
         where
-        id' :: ProgramViewT instr m a -> ProgramT instr n a
         id' (Return a) = return a
         id' (i :>>= k) = singleton i >>= mapMonad f . k
 
