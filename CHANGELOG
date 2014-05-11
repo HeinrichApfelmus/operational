@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+operational - 0.2.3.1
+
+* bump dependency `mtl >= 1.1 && < 2.3`.
+
 operational - 0.2.3.0
 
 * added instance for `MonadReader` class
