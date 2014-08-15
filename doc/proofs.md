@@ -45,7 +45,7 @@ which is simply the list of instructions from the [tutorial][]. Now, we know tha
     instance Monad (NF instr) where
         return            = Return'
         (Return' a) >>= k = k a
-        (m :>>=' g) >>= k = m :>>=' (\a -> g a :>>=' k)
+        (m :>>=' g) >>= k = m :>>=' (\a -> g a >>= k)
 
 In particular, it fulfills the monad laws. (Actually we would have to prove that by using coinduction, but I leave that as an exercise.)
 
