@@ -47,6 +47,7 @@ split = eval <=< viewT
     where
     -- apply the laws for  msplit
     eval :: Monad m => ProgramViewT (MPlus m) m a -> m (Maybe (a, LogicT m a))
+    eval (Return v)         = return (Just (v, mzero))
     eval (MZero     :>>= k) = return Nothing
     eval (MPlus m n :>>= k) = do
         ma <- split (m >>= k)
