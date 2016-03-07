@@ -220,6 +220,12 @@ instance Monad m => Applicative (ProgramT instr m) where
 singleton :: instr a -> ProgramT instr m a
 singleton = Instr
 
+-- | Map over instructions
+mapProgramT :: (forall a. instr1 a -> instr2 a) -> ProgramT instr1 m b -> ProgramT instr2 m b
+mapProgramT _ (Lift m) = Lift m
+mapProgramT f (Instr i) = Instr (f i)
+mapProgramT f (Bind p pnext) = Bind (mapProgramT f p) (mapProgramT f . pnext)
+
 -- | View type for inspecting the first instruction.
 -- This is very similar to pattern matching on lists.
 --
