@@ -22,7 +22,7 @@ Stability:          Provisional
 
 build-type:         Simple
 cabal-version:      >= 1.6
-extra-source-files: CHANGELOG
+extra-source-files: CHANGELOG.md
                     doc/*.md
                     doc/examples/*.hs
                     doc/examples/*.lhs
