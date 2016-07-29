@@ -47,7 +47,7 @@ testListT = runListT $ do
 
 
     -- testing the monad laws, from the Haskellwiki
-    -- http://www.haskell.org/haskellwiki/ListT_done_right#Order_of_printing
+    -- http://wiki.haskell.org/ListT_done_right#Order_of_printing
 a,b,c :: ListT IO ()
 [a,b,c] = map (lift . putChar) ['a','b','c']
 

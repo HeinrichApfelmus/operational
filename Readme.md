@@ -4,7 +4,7 @@ It is based on the article [The Operational Monad Tutorial][tutorial], published
 
 For more, see the **[project website]**.
 
-  [project website]: http://haskell.org/haskellwiki/Operational
+  [project website]: http://wiki.haskell.org/Operational
 
 ----
 

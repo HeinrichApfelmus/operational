@@ -7,7 +7,7 @@ Description:
   .
   This is useful for: writing web applications in a sequential style, programming games with a uniform interface for human and AI players and easy replay capababilities, implementing fast parser monads, designing monadic DSLs, etc.
   .
-  See the project homepage <http://haskell.org/haskellwiki/Operational> for a more detailed introduction and features.
+  See the project homepage <http://wiki.haskell.org/Operational> for a more detailed introduction and features.
   .
   Related packages: MonadPrompt <http://hackage.haskell.org/package/MonadPrompt>.
 
@@ -17,7 +17,7 @@ License-file:       LICENSE
 Author:             Heinrich Apfelmus
 Maintainer:         Heinrich Apfelmus <apfelmus quantentunnel de>
 Copyright:          (c) Heinrich Apfelmus 2010-2013
-Homepage:           http://haskell.org/haskellwiki/Operational
+Homepage:           http://wiki.haskell.org/Operational
 Stability:          Provisional
 
 build-type:         Simple
