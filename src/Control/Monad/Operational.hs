@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, Rank2Types, ScopedTypeVariables #-}
+{-# LANGUAGE GADTSyntax, ExistentialQuantification, Rank2Types, ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances, MultiParamTypeClasses, FlexibleInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 
@@ -175,7 +175,7 @@ Stack machine from \"The Operational Monad Tutorial\".
 >        eval (Pop    :>>= is) (a:stack) = interpret (is a ) stack
 >        eval (Return a)       stack     = a
 
-Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is mandatory.
+In this example, the type signature for the `eval` helper function is optional.
 
 -}
 
@@ -284,7 +284,7 @@ List monad transformer.
 >        eval (Plus m n :>>= k) =
 >            liftM2 (++) (runList (m >>= k)) (runList (n >>= k))
 
-Note that since 'ProgramView' is a GADT, the type annotation for @eval@ is mandatory.
+In this example, the type signature for the `eval` helper function is optional.
 
 -}
 
