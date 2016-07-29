@@ -311,5 +311,5 @@ instance (MonadReader r m) => MonadReader r (ProgramT instr m) where
     
     local r (Lift m)     = Lift (local r m)
     local r (m `Bind` k) = local r m `Bind` (local r . k)
-    local r (Instr i)    = Instr i
+    local _ (Instr i)    = Instr i
 
