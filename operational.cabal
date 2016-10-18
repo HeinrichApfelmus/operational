@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.3.3
+Version:            0.2.3.4
 Synopsis:           Implementation of difficult monads made easy
                     with operational semantics.
 Description:
@@ -38,10 +38,10 @@ source-repository head
 
 Library
     hs-source-dirs:     src
-    build-depends:      base == 4.* , mtl >= 1.1 && < 2.4.0
+    build-depends:      base >= 4.4 && < 5 , mtl >= 1.1 && < 2.3.0
     ghc-options:        -Wall
     extensions:         GADTs, Rank2Types, ScopedTypeVariables,
-                        UndecidableInstances,
+                        UndecidableInstances, GADTSyntax,
                         MultiParamTypeClasses, FlexibleInstances
     exposed-modules:    Control.Monad.Operational
 
