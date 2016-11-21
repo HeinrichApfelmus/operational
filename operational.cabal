@@ -9,7 +9,13 @@ Description:
   .
   See the project homepage <http://wiki.haskell.org/Operational> for a more detailed introduction and features.
   .
-  Related packages: MonadPrompt <http://hackage.haskell.org/package/MonadPrompt>.
+  Related packages:
+  .
+  * MonadPrompt — <http://hackage.haskell.org/package/MonadPrompt>
+  .
+  * free — <http://hackage.haskell.org/package/free>
+  .
+  * free-operational — <http://hackage.haskell.org/package/free-operational>
 
 Category:           Control, Monads
 License:            BSD3

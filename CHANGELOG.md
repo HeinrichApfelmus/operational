@@ -3,6 +3,7 @@ Changelog for the `operational` package
 
 **0.2.3.4** -- Maintenance release.
 
+* Update references to other packages.
 * Modernize `.cabal` file.
 * Restrict dependencies to ensure GHC >= 7.2.
 
