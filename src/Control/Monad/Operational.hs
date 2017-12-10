@@ -95,7 +95,7 @@ The point is that you can now proceed in any way you like:
 you can wait for the user to return input as shown,
 or you store the continuation @k@ and retrieve it when
 your web application receives another HTTP request,
-or you can keep a log of all user inputs on the client side an replay them,
+or you can keep a log of all user inputs on the client side and replay them,
 and so on. Moreover, you can implement different @run@ functions
 for one and the same custom monad, which is useful for testing.
 Also note that the result type of the @run@ function does not need to
