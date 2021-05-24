@@ -28,6 +28,10 @@ import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Applicative
 
+
+-- mmorph
+import Control.Monad.Morph
+
     -- mtl  classes to instantiate.
     -- Those commented out cannot be instantiated. For reasons see below.
 -- import Control.Monad.Cont.Class
@@ -281,17 +285,22 @@ unviewT (Return a) = return a
 unviewT (instruction :>>= continuation) = singleton instruction >>= continuation
 
 -- Ideally, this was implemented as instance MMorph from the mmorph package, but it lacks the Monad n context
-hoist :: (Monad m, Monad n) => (forall x . m x -> n x) -> ProgramT instr m a -> ProgramT instr n a
-hoist morphism action = (action
+hoistProgramT :: (Monad m, Monad n) => (forall x . m x -> n x) -> ProgramT instr m a -> ProgramT instr n a
+hoistProgramT morphism action = (action
     & viewT
     & morphism
-    & fmap (hoistView morphism)
+    & fmap (hoistViewT morphism)
     & lift)
     >>= unviewT
 
-hoistView :: (Monad m, Monad n) => (forall x . m x -> n x) -> ProgramViewT instr m a -> ProgramViewT instr n a
-hoistView morphism (Return a) = Return a
-hoistView morphism (instruction :>>= continuation) = instruction :>>= (hoist morphism . continuation)
+instance MFunctor (ProgramT instr) where
+    hoist nat (Lift   m) = Lift (nat m)
+    hoist nat (Bind m f) = Bind (hoist nat m) (hoist nat . f)
+    hoist _   (Instr  i) = Instr i
+
+hoistViewT :: (Monad m, Monad n) => (forall x . m x -> n x) -> ProgramViewT instr m a -> ProgramViewT instr n a
+hoistViewT morphism (Return a) = Return a
+hoistViewT morphism (instruction :>>= continuation) = instruction :>>= (hoist morphism . continuation)
 
 mapInstr :: Monad m => (forall x . instr1 x -> instr2 x) -> ProgramT instr1 m a -> ProgramT instr2 m a
 mapInstr f = go
