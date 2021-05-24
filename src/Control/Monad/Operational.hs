@@ -302,14 +302,13 @@ hoistViewT :: (Monad m, Monad n) => (forall x . m x -> n x) -> ProgramViewT inst
 hoistViewT morphism (Return a) = Return a
 hoistViewT morphism (instruction :>>= continuation) = instruction :>>= (hoist morphism . continuation)
 
-mapInstr :: Monad m => (forall x . instr1 x -> instr2 x) -> ProgramT instr1 m a -> ProgramT instr2 m a
+mapInstr :: forall instr1 instr2 m a . Monad m => (forall x . instr1 x -> instr2 x) -> ProgramT instr1 m a -> ProgramT instr2 m a
 mapInstr f = go
     where
-        go action = do
-            leftInstruction <- lift $ viewT action
-            case leftInstruction of
-                Return a -> return a
-                instruction :>>= continuation -> singleton (f instruction) >>= (go . continuation)
+        go :: forall x m . ProgramT instr1 m x -> ProgramT instr2 m x
+        go (Lift action) = Lift action
+        go (Bind action continuation) = Bind (go action) (go . continuation)
+        go (Instr instruction) = Instr $ f instruction
 
 {- $exampleT
 
