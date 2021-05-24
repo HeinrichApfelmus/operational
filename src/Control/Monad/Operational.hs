@@ -21,6 +21,9 @@ module Control.Monad.Operational (
 
     ) where
 
+import Data.Function ((&))
+import Control.Category ((>>>))
+
 import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Applicative
@@ -262,6 +265,28 @@ liftProgram (Lift m)     = return (runIdentity m)
 liftProgram (m `Bind` k) = liftProgram m `Bind` (liftProgram . k)
 liftProgram (Instr i)    = Instr i
 
+
+-- https://github.com/HeinrichApfelmus/operational/issues/23
+interpretWithMonadT :: Monad m => (forall x . instr x -> m x) -> ProgramT instr m a -> m a
+interpretWithMonadT interpreter = go
+  where
+    go program = do
+      firstInstruction <- viewT program
+      case firstInstruction of
+        Return a -> return a
+        instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
+
+unviewT :: Monad m => ProgramViewT instr m a -> ProgramT instr m a
+unviewT (Return a) = return a
+unviewT (instruction :>>= continuation) = singleton instruction >>= continuation
+
+mapInstr :: forall instr1 instr2 m a . Monad m => (forall x . instr1 x -> instr2 x) -> ProgramT instr1 m a -> ProgramT instr2 m a
+mapInstr f = go
+    where
+        go :: forall x m . ProgramT instr1 m x -> ProgramT instr2 m x
+        go (Lift action) = Lift action
+        go (Bind action continuation) = Bind (go action) (go . continuation)
+        go (Instr instruction) = Instr $ f instruction
 
 {- $exampleT
 
