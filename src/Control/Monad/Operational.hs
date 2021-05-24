@@ -5,20 +5,20 @@
 module Control.Monad.Operational (
     -- * Synopsis
     -- $synopsis
-    
+
     -- * Overview
     -- $intro
-    
+
     -- * Monad
     Program, singleton, ProgramView, view,
     -- $example
     interpretWithMonad,
-    
+
     -- * Monad transformer
     ProgramT, ProgramViewT(..), viewT,
     -- $exampleT
     liftProgram,
-    
+
     ) where
 
 import Control.Monad.Identity
@@ -120,9 +120,9 @@ More usage examples can be found here:
     i.e. sequences of primitive instructions.
 
     * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
-    
+
     * @a@ is the return type of a program.
-    
+
     @'Program' instr@ is always a monad and
     automatically obeys the monad laws.
 -}
@@ -144,7 +144,7 @@ view = runIdentity . viewT
 --
 -- This function can be useful if you are mainly interested in
 -- mapping a 'Program' to different standard monads, like the state monad.
--- For implementing a truly custom monad, 
+-- For implementing a truly custom monad,
 -- you should write your interpreter directly with 'view' instead.
 interpretWithMonad :: forall instr m b.
     Monad m => (forall a. instr a -> m a) -> (Program instr b -> m b)
@@ -187,11 +187,11 @@ In this example, the type signature for the `eval` helper function is optional.
     i.e. sequences of primitive instructions and actions from the base monad.
 
     * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
-    
+
     * @m@ is the base monad, embedded with 'lift'.
 
     * @a@ is the return type of a program.
-    
+
     @'ProgramT' instr m@ is a monad transformer and
     automatically obeys both the monad and the lifting laws.
 -}
@@ -245,7 +245,7 @@ viewT (Instr i)               = return (i :>>= return)
 {-| Lift a plain sequence of instructions to a sequence
     of instructions over a monad 'm'.
     This is the counterpart of the 'lift' function from 'MonadTrans'.
-    
+
     It can be defined as follows:
 
 @
@@ -255,7 +255,7 @@ viewT (Instr i)               = return (i :>>= return)
         eval (Return a) = return a
         eval (i :>>= k) = singleton i >>= liftProgram . k
 @
-    
+
 -}
 liftProgram :: Monad m => Program instr a -> ProgramT instr m a
 liftProgram (Lift m)     = return (runIdentity m)
@@ -290,11 +290,11 @@ In this example, the type signature for the `eval` helper function is optional.
 
 {------------------------------------------------------------------------------
     mtl instances
-    
+
   * All of these instances need UndecidableInstances,
     because they do not satisfy the coverage condition.
     Most of the instance in the  mtl  package itself have the same issue.
-    
+
   * Lifting algebraic operations is easy,
     lifting control operations is more elaborate, but sometimes possible.
     See the design notes in  `doc/design.md`.
@@ -308,8 +308,7 @@ instance (MonadIO m) => MonadIO (ProgramT instr m) where
 
 instance (MonadReader r m) => MonadReader r (ProgramT instr m) where
     ask = lift ask
-    
+
     local r (Lift m)     = Lift (local r m)
     local r (m `Bind` k) = local r m `Bind` (local r . k)
     local _ (Instr i)    = Instr i
-
