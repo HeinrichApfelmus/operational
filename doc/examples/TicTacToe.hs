@@ -20,7 +20,7 @@ import Control.Monad.Operational
 import Control.Monad.State
 
 import Data.Either
-import Data.List
+import Data.List (transpose, intersperse)
 
     -- external libraries needed
 import System.Random
