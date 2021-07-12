@@ -25,6 +25,10 @@ import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Applicative
 
+
+-- mmorph
+import Control.Monad.Morph
+
     -- mtl  classes to instantiate.
     -- Those commented out cannot be instantiated. For reasons see below.
 -- import Control.Monad.Cont.Class
@@ -216,6 +220,11 @@ instance Monad m => Applicative (ProgramT instr m) where
     pure   = return
     (<*>)  = ap
 
+instance MFunctor (ProgramT instr) where
+    hoist nat (Lift   m) = Lift (nat m)
+    hoist nat (Bind m f) = Bind (hoist nat m) (hoist nat . f)
+    hoist _   (Instr  i) = Instr i
+
 -- | Program made from a single primitive instruction.
 singleton :: instr a -> ProgramT instr m a
 singleton = Instr
@@ -233,6 +242,9 @@ data ProgramViewT instr m a where
     (:>>=) :: instr b
            -> (b -> ProgramT instr m a)
            -> ProgramViewT instr m a
+instance MFunctor (ProgramViewT instr) where
+    hoist morphism (Return a) = Return a
+    hoist morphism (instruction :>>= continuation) = instruction :>>= (hoist morphism . continuation)
 
 -- | View function for inspecting the first instruction.
 viewT :: Monad m => ProgramT instr m a -> m (ProgramViewT instr m a)
