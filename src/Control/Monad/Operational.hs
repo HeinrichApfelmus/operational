@@ -21,9 +21,7 @@ module Control.Monad.Operational (
 
     ) where
 
-import Data.Function ((&))
-import Control.Category ((>>>))
-
+import Control.Monad ((>=>))
 import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Applicative
@@ -236,6 +234,19 @@ data ProgramViewT instr m a where
     (:>>=) :: instr b
            -> (b -> ProgramT instr m a)
            -> ProgramViewT instr m a
+
+instance Monad m => Functor (ProgramViewT instr m) where
+    fmap f (Return a) = Return $ f a
+    fmap f (instr :>>= cont) = instr :>>= (fmap f . cont)
+
+instance Monad m => Applicative (ProgramViewT instr m) where
+    pure = return
+    (<*>) = ap
+
+instance Monad m => Monad (ProgramViewT instr m) where
+    return = Return
+    Return a >>= cont = cont a
+    (instr :>>= cont1) >>= cont2 = instr :>>= (cont1 >=> unviewT . cont2)
 
 -- | View function for inspecting the first instruction.
 viewT :: Monad m => ProgramT instr m a -> m (ProgramViewT instr m a)
