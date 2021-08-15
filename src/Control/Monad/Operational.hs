@@ -17,7 +17,8 @@ module Control.Monad.Operational (
     -- * Monad transformer
     ProgramT, ProgramViewT(..), viewT,
     -- $exampleT
-    liftProgram,
+    liftProgram, mapInstr,
+    unviewT, interpretWithMonadT,
 
     ) where
 
@@ -277,7 +278,13 @@ liftProgram (m `Bind` k) = liftProgram m `Bind` (liftProgram . k)
 liftProgram (Instr i)    = Instr i
 
 
--- https://github.com/HeinrichApfelmus/operational/issues/23
+-- | Utility function that extends
+-- a given interpretation of instructions as monadic actions
+-- to an interpration of 'ProgramT's as monadic actions.
+--
+-- Ideally, you would not use another monad,
+-- but write a custom interpreter directly with `viewT`.
+-- See the remark at 'interpretWithMonad'.
 interpretWithMonadT :: Monad m => (forall x . instr x -> m x) -> ProgramT instr m a -> m a
 interpretWithMonadT interpreter = go
   where
@@ -287,11 +294,24 @@ interpretWithMonadT interpreter = go
         Return a -> return a
         instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
 
+-- | Utilitiy function for mapping a 'ProgramViewT' back into a 'ProgramT'.
+-- 
+-- Semantically, the function 'unviewT' is an inverse of 'viewT',
+-- e.g. we have
+--
+-- @
+--   viewT (singleton i) >>= unviewT = return (singleton i)
+-- @
 unviewT :: Monad m => ProgramViewT instr m a -> ProgramT instr m a
 unviewT (Return a) = return a
-unviewT (instruction :>>= continuation) = singleton instruction >>= continuation
+unviewT (instruction :>>= continuation) =
+    (Instr instruction) `Bind` continuation
 
-mapInstr :: forall instr1 instr2 m a . Monad m => (forall x . instr1 x -> instr2 x) -> ProgramT instr1 m a -> ProgramT instr2 m a
+-- | Extend a mapping of instructions to a mapping of 'ProgramT'.
+mapInstr ::
+    forall instr1 instr2 m a . Monad m
+    => (forall x . instr1 x -> instr2 x)
+    -> ProgramT instr1 m a -> ProgramT instr2 m a
 mapInstr f = go
     where
         go :: forall x m . ProgramT instr1 m x -> ProgramT instr2 m x
