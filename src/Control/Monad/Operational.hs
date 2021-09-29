@@ -22,10 +22,8 @@ module Control.Monad.Operational (
 
     ) where
 
-import Control.Monad ((>=>))
 import Control.Monad.Identity
 import Control.Monad.Trans
-import Control.Applicative
 
     -- mtl  classes to instantiate.
     -- Those commented out cannot be instantiated. For reasons see below.
@@ -314,7 +312,7 @@ mapInstr ::
     -> ProgramT instr1 m a -> ProgramT instr2 m a
 mapInstr f = go
     where
-        go :: forall x m . ProgramT instr1 m x -> ProgramT instr2 m x
+        go :: forall x. ProgramT instr1 m x -> ProgramT instr2 m x
         go (Lift action) = Lift action
         go (Bind action continuation) = Bind (go action) (go . continuation)
         go (Instr instruction) = Instr $ f instruction
