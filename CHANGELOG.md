@@ -1,6 +1,12 @@
 Changelog for the `operational` package
 ---------------------------------------
 
+**0.2.4.0** -- Feature release.
+
+* Update to build with GHC 9.0.1.
+* Add utility functions `interpretWithMonadT`, `unviewT` and `mapInstr`
+* Add utility `Functor`, `Applicative`, and `Monad` instances for `ProgramViewT` type.
+
 **0.2.3.5** -- Maintenance release.
 
 * Update references to other packages.

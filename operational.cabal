@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.3.5
+Version:            0.2.4.0
 Synopsis:           Implementation of difficult monads made easy
                     with operational semantics.
 Description:
