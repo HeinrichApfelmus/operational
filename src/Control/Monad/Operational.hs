@@ -5,22 +5,24 @@
 module Control.Monad.Operational (
     -- * Synopsis
     -- $synopsis
-    
+
     -- * Overview
     -- $intro
-    
+
     -- * Monad
     Program, singleton, ProgramView, view,
     -- $example
     interpretWithMonad,
-    
+
     -- * Monad transformer
     ProgramT, ProgramViewT(..), viewT,
     -- $exampleT
-    liftProgram,
-    
+    liftProgram, mapInstr,
+    unviewT, interpretWithMonadT,
+
     ) where
 
+import Control.Monad ((>=>))
 import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Applicative
@@ -120,9 +122,9 @@ More usage examples can be found here:
     i.e. sequences of primitive instructions.
 
     * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
-    
+
     * @a@ is the return type of a program.
-    
+
     @'Program' instr@ is always a monad and
     automatically obeys the monad laws.
 -}
@@ -144,7 +146,7 @@ view = runIdentity . viewT
 --
 -- This function can be useful if you are mainly interested in
 -- mapping a 'Program' to different standard monads, like the state monad.
--- For implementing a truly custom monad, 
+-- For implementing a truly custom monad,
 -- you should write your interpreter directly with 'view' instead.
 interpretWithMonad :: forall instr m b.
     Monad m => (forall a. instr a -> m a) -> (Program instr b -> m b)
@@ -187,11 +189,11 @@ In this example, the type signature for the `eval` helper function is optional.
     i.e. sequences of primitive instructions and actions from the base monad.
 
     * The /primitive instructions/ are given by the type constructor @instr :: * -> *@.
-    
+
     * @m@ is the base monad, embedded with 'lift'.
 
     * @a@ is the return type of a program.
-    
+
     @'ProgramT' instr m@ is a monad transformer and
     automatically obeys both the monad and the lifting laws.
 -}
@@ -234,6 +236,19 @@ data ProgramViewT instr m a where
            -> (b -> ProgramT instr m a)
            -> ProgramViewT instr m a
 
+instance Monad m => Functor (ProgramViewT instr m) where
+    fmap f (Return a) = Return $ f a
+    fmap f (instr :>>= cont) = instr :>>= (fmap f . cont)
+
+instance Monad m => Applicative (ProgramViewT instr m) where
+    pure = return
+    (<*>) = ap
+
+instance Monad m => Monad (ProgramViewT instr m) where
+    return = Return
+    Return a >>= cont = cont a
+    (instr :>>= cont1) >>= cont2 = instr :>>= (cont1 >=> unviewT . cont2)
+
 -- | View function for inspecting the first instruction.
 viewT :: Monad m => ProgramT instr m a -> m (ProgramViewT instr m a)
 viewT (Lift m)                = m >>= return . Return
@@ -245,7 +260,7 @@ viewT (Instr i)               = return (i :>>= return)
 {-| Lift a plain sequence of instructions to a sequence
     of instructions over a monad 'm'.
     This is the counterpart of the 'lift' function from 'MonadTrans'.
-    
+
     It can be defined as follows:
 
 @
@@ -255,13 +270,54 @@ viewT (Instr i)               = return (i :>>= return)
         eval (Return a) = return a
         eval (i :>>= k) = singleton i >>= liftProgram . k
 @
-    
+
 -}
 liftProgram :: Monad m => Program instr a -> ProgramT instr m a
 liftProgram (Lift m)     = return (runIdentity m)
 liftProgram (m `Bind` k) = liftProgram m `Bind` (liftProgram . k)
 liftProgram (Instr i)    = Instr i
 
+
+-- | Utility function that extends
+-- a given interpretation of instructions as monadic actions
+-- to an interpration of 'ProgramT's as monadic actions.
+--
+-- Ideally, you would not use another monad,
+-- but write a custom interpreter directly with `viewT`.
+-- See the remark at 'interpretWithMonad'.
+interpretWithMonadT :: Monad m => (forall x . instr x -> m x) -> ProgramT instr m a -> m a
+interpretWithMonadT interpreter = go
+  where
+    go program = do
+      firstInstruction <- viewT program
+      case firstInstruction of
+        Return a -> return a
+        instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
+
+-- | Utilitiy function for mapping a 'ProgramViewT' back into a 'ProgramT'.
+-- 
+-- Semantically, the function 'unviewT' is an inverse of 'viewT',
+-- e.g. we have
+--
+-- @
+--   viewT (singleton i) >>= unviewT = return (singleton i)
+-- @
+unviewT :: Monad m => ProgramViewT instr m a -> ProgramT instr m a
+unviewT (Return a) = return a
+unviewT (instruction :>>= continuation) =
+    (Instr instruction) `Bind` continuation
+
+-- | Extend a mapping of instructions to a mapping of 'ProgramT'.
+mapInstr ::
+    forall instr1 instr2 m a . Monad m
+    => (forall x . instr1 x -> instr2 x)
+    -> ProgramT instr1 m a -> ProgramT instr2 m a
+mapInstr f = go
+    where
+        go :: forall x m . ProgramT instr1 m x -> ProgramT instr2 m x
+        go (Lift action) = Lift action
+        go (Bind action continuation) = Bind (go action) (go . continuation)
+        go (Instr instruction) = Instr $ f instruction
 
 {- $exampleT
 
@@ -290,11 +346,11 @@ In this example, the type signature for the `eval` helper function is optional.
 
 {------------------------------------------------------------------------------
     mtl instances
-    
+
   * All of these instances need UndecidableInstances,
     because they do not satisfy the coverage condition.
     Most of the instance in the  mtl  package itself have the same issue.
-    
+
   * Lifting algebraic operations is easy,
     lifting control operations is more elaborate, but sometimes possible.
     See the design notes in  `doc/design.md`.
@@ -308,8 +364,7 @@ instance (MonadIO m) => MonadIO (ProgramT instr m) where
 
 instance (MonadReader r m) => MonadReader r (ProgramT instr m) where
     ask = lift ask
-    
+
     local r (Lift m)     = Lift (local r m)
     local r (m `Bind` k) = local r m `Bind` (local r . k)
     local _ (Instr i)    = Instr i
-
