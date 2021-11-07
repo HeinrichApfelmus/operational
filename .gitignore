@@ -1,2 +1,12 @@
 .DS_Store
-/dist/
+
+cabal.project.local
+dist/
+dist-newstyle/
+*.cabal-sandbox
+
+.stack-work/
+.stack.yaml.lock
+
+*.tmproj
+.ghc.environment.*

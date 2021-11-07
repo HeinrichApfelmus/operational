@@ -1,6 +1,10 @@
 Changelog for the `operational` package
 ---------------------------------------
 
+**0.2.4.1** -- Maintenance release.
+
+* Restrict dependencies to ensure GHC >= 7.10.
+
 **0.2.4.0** -- Feature release.
 
 * Update to build with GHC 9.0.1.
