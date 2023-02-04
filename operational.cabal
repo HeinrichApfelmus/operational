@@ -41,7 +41,7 @@ flag buildExamples
 
 source-repository head
     type:           git
-    location:       git://github.com/HeinrichApfelmus/operational.git
+    location:       https://github.com/HeinrichApfelmus/operational.git
 
 Library
     default-language:   Haskell2010
