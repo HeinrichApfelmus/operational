@@ -22,13 +22,15 @@ module Control.Monad.Operational (
 
     ) where
 
-import Control.Monad.Identity
-import Control.Monad.Trans
+import Control.Monad
+import Control.Monad.Identity (Identity, runIdentity)
+import Control.Monad.Trans    (MonadTrans, lift)
 
     -- mtl  classes to instantiate.
     -- Those commented out cannot be instantiated. For reasons see below.
 -- import Control.Monad.Cont.Class
 -- import Control.Monad.Error.Class
+import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 -- import Control.Monad.Writer.Class
@@ -293,7 +295,7 @@ interpretWithMonadT interpreter = go
         instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
 
 -- | Utilitiy function for mapping a 'ProgramViewT' back into a 'ProgramT'.
--- 
+--
 -- Semantically, the function 'unviewT' is an inverse of 'viewT',
 -- e.g. we have
 --
