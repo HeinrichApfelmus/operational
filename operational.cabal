@@ -59,7 +59,9 @@ Library
     hs-source-dirs:     src
     exposed-modules:    Control.Monad.Operational
 
-    build-depends:      base >= 4.8 && < 5, mtl >= 1.1 && < 2.4, transformers
+    build-depends:      base >= 4.8 && < 5
+                      , mtl >= 1.1 && < 2.4
+                      , transformers >=0.5.6 && <0.7
     ghc-options:        -Wall
 
 Executable operational-TicTacToe
