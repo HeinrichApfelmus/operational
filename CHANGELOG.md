@@ -1,6 +1,10 @@
 Changelog for the `operational` package
 ---------------------------------------
 
+**0.2.4.2** -- Maintenance release.
+
+* Compatibility with `mtl-2.3.1`
+
 **0.2.4.1** -- Maintenance release.
 
 * Restrict dependencies to ensure GHC >= 7.10.

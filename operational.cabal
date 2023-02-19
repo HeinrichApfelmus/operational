@@ -1,5 +1,5 @@
 Name:               operational
-Version:            0.2.4.1
+Version:            0.2.4.2
 Synopsis:           Implementation of difficult monads made easy
                     with operational semantics.
 Description:
@@ -28,6 +28,9 @@ Stability:          Provisional
 
 build-type:         Simple
 cabal-version:      >= 1.10
+tested-with:         GHC == 9.4.4
+                   , GHC == 9.2.5
+                   , GHC == 8.10.7
 extra-source-files: CHANGELOG.md
                     doc/*.md
                     doc/examples/*.hs
