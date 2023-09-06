@@ -301,7 +301,7 @@ interpretWithMonadTT interpreter = go
         Return a -> return a
         instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
 
--- | Utilitiy function for mapping a 'ProgramViewT' back into a 'ProgramT'.
+-- | Utility function for mapping a 'ProgramViewT' back into a 'ProgramT'.
 --
 -- Semantically, the function 'unviewT' is an inverse of 'viewT',
 -- e.g. we have
