@@ -24,6 +24,7 @@ module Control.Monad.Operational (
 
 import Control.Monad
 import Control.Monad.Identity (Identity, runIdentity)
+import Control.Monad.Morph    (MonadTrans(..), MFunctor(..))
 import Control.Monad.Trans    (MonadTrans, lift)
 
     -- mtl  classes to instantiate.
@@ -218,6 +219,11 @@ instance Monad m => Applicative (ProgramT instr m) where
     pure   = return
     (<*>)  = ap
 
+instance MFunctor (ProgramT instr) where
+    hoist nat (Lift   m) = Lift (nat m)
+    hoist nat (Bind m f) = Bind (hoist nat m) (hoist nat . f)
+    hoist _   (Instr  i) = Instr i
+
 -- | Program made from a single primitive instruction.
 singleton :: instr a -> ProgramT instr m a
 singleton = Instr
@@ -248,6 +254,10 @@ instance Monad m => Monad (ProgramViewT instr m) where
     return = Return
     Return a >>= cont = cont a
     (instr :>>= cont1) >>= cont2 = instr :>>= (cont1 >=> unviewT . cont2)
+
+instance MFunctor (ProgramViewT instr) where
+    hoist _ (Return a) = Return a
+    hoist morphism (instruction :>>= continuation) = instruction :>>= (hoist morphism . continuation)
 
 -- | View function for inspecting the first instruction.
 viewT :: Monad m => ProgramT instr m a -> m (ProgramViewT instr m a)
