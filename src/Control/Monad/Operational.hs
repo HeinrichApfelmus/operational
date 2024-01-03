@@ -19,11 +19,12 @@ module Control.Monad.Operational (
     -- $exampleT
     liftProgram, mapInstr,
     unviewT, interpretWithMonadT,
+    interpretWithMonadTT,
 
     ) where
 
 import Control.Monad
-import Control.Monad.Identity (Identity, runIdentity)
+import Control.Monad.Identity (Identity, runIdentity, IdentityT (runIdentityT, IdentityT))
 import Control.Monad.Trans    (MonadTrans, lift)
 
     -- mtl  classes to instantiate.
@@ -286,15 +287,21 @@ liftProgram (Instr i)    = Instr i
 -- but write a custom interpreter directly with `viewT`.
 -- See the remark at 'interpretWithMonad'.
 interpretWithMonadT :: Monad m => (forall x . instr x -> m x) -> ProgramT instr m a -> m a
-interpretWithMonadT interpreter = go
+interpretWithMonadT interpreter = runIdentityT . interpretWithMonadTT (IdentityT . interpreter)
+
+-- | Utility function that extends
+-- a given interpretation of instructions as actions in a transformer
+-- to an interpration of 'ProgramT's as monadic actions.
+interpretWithMonadTT :: (Monad m, MonadTrans t, Monad (t m)) => (forall x . instr x -> t m x) -> ProgramT instr m a -> t m a
+interpretWithMonadTT interpreter = go
   where
     go program = do
-      firstInstruction <- viewT program
+      firstInstruction <- lift $ viewT program
       case firstInstruction of
         Return a -> return a
         instruction :>>= continuation -> interpreter instruction >>= (go . continuation)
 
--- | Utilitiy function for mapping a 'ProgramViewT' back into a 'ProgramT'.
+-- | Utility function for mapping a 'ProgramViewT' back into a 'ProgramT'.
 --
 -- Semantically, the function 'unviewT' is an inverse of 'viewT',
 -- e.g. we have
